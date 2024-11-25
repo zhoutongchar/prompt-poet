@@ -47,16 +47,14 @@ class TemplateRegistry:
     ) -> j2.Template:
         """Get template from cache or load from disk.
 
-        :param template_name: The name of the file containing the raw template.
-        :param template_dir: The path to the directory housing the file
-            `template_name`.
-        :param package_name: An optional parameter indicating to find
-            `template_name` within `template_dir` within a python package
-            `package_name`.
-        :param use_examples: An optional parameter indicating to use the
-            examples packaged into the the Prompt Poet package.
-        :param use_cache: An optional parameter indicating to use the
-            examples packaged into the the Prompt Poet package.
+        Args:
+            template_loader: A TemplateLoader instance that handles loading the template
+                from its source.
+            use_cache: Whether to use cached template if available. If False or the
+                template is not in cache, it will be loaded from disk.
+
+        Returns:
+            j2.Template: The loaded Jinja2 template object.
         """
         cache_key = template_loader.id()
         load_from_disk = not use_cache or cache_key not in self._cache

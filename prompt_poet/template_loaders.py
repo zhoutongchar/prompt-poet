@@ -5,11 +5,19 @@ import jinja2 as j2
 
 
 class TemplateLoader:
+    """Base class for template loaders.
+
+    This abstract class defines the interface for loading templates from various sources.
+    Concrete implementations should handle specific template loading scenarios like
+    local filesystem, remote filesystem, etc.
+    """
 
     def load(self) -> j2.Template:
+        """Load and return a Jinja2 template from the source."""
         pass
 
     def id(self) -> str:
+        """Generate a unique identifier for this template loader configuration."""
         pass
 
 
@@ -22,11 +30,12 @@ def parse_template_path(template_path: str) -> tuple[str, str]:
 
 
 class LocalFSTemplateLoader(TemplateLoader):
+    """Template loader for loading templates from the local filesystem."""
+
     def __init__(self, template_path: str):
         self._template_dir, self._template_name = parse_template_path(template_path)
 
     def load(self) -> j2.Template:
-        """Load template from disk."""
         try:
             loader = j2.FileSystemLoader(searchpath=self._template_dir)
         except j2.TemplateNotFound as ex:
@@ -43,12 +52,12 @@ class LocalFSTemplateLoader(TemplateLoader):
 
 
 class LocalPackageTemplateLoader(TemplateLoader):
+    """Template loader for loading templates from Python packages."""
     def __init__(self, package_name: str, template_path: str):
         self._template_dir, self._template_name = parse_template_path(template_path)
         self._package_name = package_name
 
     def load(self) -> j2.Template:
-        """Load template from package on the disk."""
         try:
             loader = j2.PackageLoader(
                 package_name=self._package_name, package_path=self._template_dir
