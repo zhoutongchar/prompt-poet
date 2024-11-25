@@ -10,6 +10,7 @@ from functools import reduce
 import yaml
 from examples import cai_helpers
 from pp_exceptions import TruncationError
+from prompt_poet.template_loaders import TemplateLoader
 from template import Template
 from tokenizer import get_encode_func
 from typing import Callable
@@ -84,6 +85,7 @@ class Prompt:
         self,
         template_data: dict,
         template_path: str | None = None,
+        template_loader: TemplateLoader = None,
         package_name: str | None = None,
         raw_template: str | None = None,
         logger: logging.LoggerAdapter | None = None,
@@ -107,6 +109,7 @@ class Prompt:
             template_path=template_path,
             package_name=package_name,
             raw_template=raw_template,
+            template_loader=template_loader,
             logger=logger,
             from_cache=from_cache,
             from_examples=from_examples,

@@ -4,6 +4,8 @@ import logging
 import os
 
 import jinja2 as j2
+
+from prompt_poet.template_loaders import LocalPackageTemplateLoader, LocalFSTemplateLoader, TemplateLoader
 from template_registry import TemplateRegistry
 
 
@@ -23,6 +25,7 @@ class Template:
     def __init__(
         self,
         template_path: str = None,
+        template_loader: TemplateLoader = None,
         package_name: str = None,
         raw_template: str = None,
         logger: logging.LoggerAdapter = None,
@@ -43,6 +46,14 @@ class Template:
                 self._template_name,
             ) = self._parse_template_path(template_path, from_examples=from_examples)
         self._package_name = package_name
+        if template_loader:
+            self._template_loader = template_loader
+        else:
+            # To be backward compatible.
+            if package_name:
+                self._template_loader = LocalPackageTemplateLoader(package_name, template_path)
+            else:
+                self._template_loader = LocalFSTemplateLoader(template_path)
         self._raw_template = raw_template
         self._provided_logger = logger
         self._from_cache = from_cache
@@ -104,9 +115,7 @@ class Template:
         else:
             registry = TemplateRegistry(logger=self._provided_logger)
             self._template = registry.get_template(
-                template_name=self._template_name,
-                template_dir=self._template_dir,
-                package_name=self._package_name,
+                template_loader=self._template_loader,
                 use_cache=self._from_cache,
             )
 

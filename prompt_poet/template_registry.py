@@ -1,10 +1,11 @@
 """A Prompt Poet (PP) template registry."""
 
 import logging
-import os
 
 import jinja2 as j2
 from cachetools import TTLCache
+
+from prompt_poet.template_loaders import TemplateLoader
 
 CACHE_MAX_SIZE = 100
 CACHE_TTL_SECS = 30
@@ -25,11 +26,11 @@ class TemplateRegistry:
         return cls._instance
 
     def __init__(
-        self,
-        logger: logging.LoggerAdapter = None,
-        reset: bool = False,
-        cache_max_size: int = CACHE_MAX_SIZE,
-        cache_ttl_secs: int = CACHE_TTL_SECS,
+            self,
+            logger: logging.LoggerAdapter = None,
+            reset: bool = False,
+            cache_max_size: int = CACHE_MAX_SIZE,
+            cache_ttl_secs: int = CACHE_TTL_SECS,
     ):
         """Initialize template engine."""
         self._provided_logger = logger
@@ -40,11 +41,9 @@ class TemplateRegistry:
             self._initialized = True
 
     def get_template(
-        self,
-        template_name: str,
-        template_dir: str,
-        package_name: str = None,
-        use_cache: bool = False,
+            self,
+            template_loader: TemplateLoader,
+            use_cache: bool = False,
     ) -> j2.Template:
         """Get template from cache or load from disk.
 
@@ -59,23 +58,11 @@ class TemplateRegistry:
         :param use_cache: An optional parameter indicating to use the
             examples packaged into the the Prompt Poet package.
         """
-        if template_dir.endswith("/"):
-            raise ValueError(
-                f"template_dir must not end with a '/'. Found: {template_dir}"
-            )
-
-        cache_key = self._build_cache_key(
-            template_name=template_name,
-            template_dir=template_dir,
-            package_name=package_name,
-        )
-
+        cache_key = template_loader.id()
         load_from_disk = not use_cache or cache_key not in self._cache
 
         if load_from_disk:
-            self._cache[cache_key] = self._load_template(
-                template_name, template_dir=template_dir, package_name=package_name
-            )
+            self._cache[cache_key] = template_loader.load()
 
         return self._cache[cache_key]
 
@@ -86,40 +73,3 @@ class TemplateRegistry:
             return self._provided_logger
 
         return logging.getLogger(__name__)
-
-    def _build_cache_key(
-        self, template_name: str, template_dir: str, package_name: str
-    ) -> str:
-        key = f"{template_dir}/{template_name}"
-        if package_name:
-            key = f"{package_name}:{key}"
-        return key
-
-    def _load_template(
-        self,
-        template_name: str,
-        template_dir: str = None,
-        package_name: str = None,
-    ) -> j2.Template:
-        """Load template from disk."""
-        loader = None
-        if template_dir is None and package_name is None:
-            raise ValueError(
-                "Either `template_dir` or `package_name` must be provided."
-            )
-
-        try:
-            if package_name is not None:
-                loader = j2.PackageLoader(
-                    package_name=package_name, package_path=template_dir
-                )
-            else:
-                loader = j2.FileSystemLoader(searchpath=template_dir)
-        except j2.TemplateNotFound as ex:
-            raise j2.TemplateNotFound(
-                f"Template not found: {ex} {template_name=} {template_dir=} {package_name=}"
-            )
-
-        env = j2.Environment(loader=loader)
-        template = env.get_template(template_name)
-        return template
