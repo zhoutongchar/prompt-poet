@@ -69,3 +69,6 @@ class LocalPackageTemplateLoader(TemplateLoader):
         env = j2.Environment(loader=loader)
         template = env.get_template(self._template_name)
         return template
+
+    def id(self):
+        return f"{self._package_name}:{self._template_dir}/{self._template_name}"
