@@ -233,7 +233,10 @@ class Prompt:
 
     @property
     def template_name(self) -> str:
-        """The metadata associated with the template."""
+        """The metadata associated with the template.
+
+        Deprecated: This property will be removed in a future release.
+        """
         return self._template.template_name
 
     @property
@@ -243,7 +246,10 @@ class Prompt:
 
     @property
     def template_dir(self) -> str:
-        """The metadata associated with the template."""
+        """The metadata associated with the template.
+
+        Deprecated: This property will be removed in a future release.
+        """
         return self._template.template_dir
 
     @property

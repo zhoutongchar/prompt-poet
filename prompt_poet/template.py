@@ -12,8 +12,9 @@ from template_registry import TemplateRegistry
 class Template:
     """A Prompt Poet (PP) template orignally represented as a valid *.yaml.j2 file.
 
-    :param template_path: The path to the template file on disk.
-    :param package_name: The name of a python package used to find `template_path`.
+    :param template_path: (deprecated) The path to the template file on disk.
+    :param template_loader: A `TemplateLoader` instance for loading templates.
+    :param package_name: (deprecated) The name of a python package used to find `template_path`.
     :param raw_template: A Prompt Poet template file represented as a string.
     :param logger: An optional logger to be used by `Template` and passed to
         downstream components
@@ -37,13 +38,27 @@ class Template:
             raise ValueError(
                 f"Cannot provide both {raw_template=} and {template_path=}."
             )
+        if template_path:
+            if logger:
+                logger.warning(
+                    "`template_path` is deprecated and will be removed in a future release. Use `template_loader` instead.")
+            else:
+                print(
+                    "Warning: `template_path` is deprecated and will be removed in a future release. Use `template_loader` instead.")
 
-        self._template_dir = None
-        self._template_name = None
+        if package_name:
+            if logger:
+                logger.warning(
+                    "`package_name` is deprecated and will be removed in a future release. Use `template_loader` instead.")
+            else:
+                print(
+                    "Warning: `package_name` is deprecated and will be removed in a future release. Use `template_loader` instead.")
+
         if template_path:
             (
                 self._template_dir,
                 self._template_name,
+                template_path,
             ) = self._parse_template_path(template_path, from_examples=from_examples)
         self._package_name = package_name
         if template_loader:
@@ -95,18 +110,24 @@ class Template:
 
     @property
     def template_name(self) -> str:
-        """The name of the template file."""
+        """The name of the template file.
+
+        Deprecated: This property will be removed in a future release.
+        """
         return self._template_name
 
     @property
     def template_dir(self) -> str:
-        """The directory housing the template file."""
+        """The directory housing the template file.
+
+        Deprecated: This property will be removed in a future release.
+        """
         return self._template_dir
 
     @property
     def template_package_name(self) -> str:
         """The name of the package housing the template file."""
-        return self._template_package_name
+        return self._package_name
 
     def _load_template(self):
         """Load a jinja2 template."""
@@ -121,7 +142,7 @@ class Template:
 
     def _parse_template_path(
         self, template_path: str, from_examples: bool = False
-    ) -> tuple[str, str]:
+    ) -> tuple[str, str, str]:
         """Parse the template path to determine the template source."""
         template_dir, template_name = os.path.split(template_path)
         if from_examples:
@@ -132,7 +153,6 @@ class Template:
             template_dir = os.path.abspath(
                 os.path.join(os.path.dirname(__file__), "examples")
             )
-
         if not template_dir:
             template_dir = "."
-        return template_dir, template_name
+        return template_dir, template_name, os.path.join(template_dir, template_name)
