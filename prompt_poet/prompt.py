@@ -51,6 +51,7 @@ class Prompt:
     :param template_data: The data that will be used to render the Jinja2
         syntax in the template.
     :param template_path: An optional filepath to the template file on disk.
+    :param template_loader: A `TemplateLoader` instance for loading templates.
     :param package_name: An optional package name containing the template file.
     :param raw_template: An optional raw template string used instead of a template
         file.
