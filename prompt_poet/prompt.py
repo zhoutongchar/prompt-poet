@@ -10,6 +10,7 @@ from functools import reduce
 import yaml
 from examples import cai_helpers
 from pp_exceptions import TruncationError
+from template_loaders import TemplateLoader
 from template import Template
 from tokenizer import get_encode_func
 from typing import Callable
@@ -50,6 +51,7 @@ class Prompt:
     :param template_data: The data that will be used to render the Jinja2
         syntax in the template.
     :param template_path: An optional filepath to the template file on disk.
+    :param template_loader: A `TemplateLoader` instance for loading templates.
     :param package_name: An optional package name containing the template file.
     :param raw_template: An optional raw template string used instead of a template
         file.
@@ -84,6 +86,7 @@ class Prompt:
         self,
         template_data: dict,
         template_path: str | None = None,
+        template_loader: TemplateLoader = None,
         package_name: str | None = None,
         raw_template: str | None = None,
         logger: logging.LoggerAdapter | None = None,
@@ -107,6 +110,7 @@ class Prompt:
             template_path=template_path,
             package_name=package_name,
             raw_template=raw_template,
+            template_loader=template_loader,
             logger=logger,
             from_cache=from_cache,
             from_examples=from_examples,
@@ -230,7 +234,10 @@ class Prompt:
 
     @property
     def template_name(self) -> str:
-        """The metadata associated with the template."""
+        """The metadata associated with the template.
+
+        Deprecated: This property will be removed in a future release.
+        """
         return self._template.template_name
 
     @property
@@ -240,8 +247,16 @@ class Prompt:
 
     @property
     def template_dir(self) -> str:
-        """The metadata associated with the template."""
+        """The metadata associated with the template.
+
+        Deprecated: This property will be removed in a future release.
+        """
         return self._template.template_dir
+
+    @property
+    def template_id(self) -> str:
+        """The id of the template associated with the template loader."""
+        return self._template.template_id
 
     @property
     def template_package_name(self) -> str:

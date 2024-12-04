@@ -1,11 +1,16 @@
+import inspect
 import os
 import pytest
 
 from examples.cai_helpers import CAIMessage
+
 import jinja2 as j2
 from pp_exceptions import TruncationError
 from prompt import Prompt
 from tiktoken import get_encoding
+
+from template_loaders import LocalFSTemplateLoader, LocalPackageTemplateLoader
+from examples import cai_helpers
 
 CWD = os.path.dirname(__file__)
 TIKTOKEN_ENCODING_NAME = "o200k_base"
@@ -510,4 +515,59 @@ def test_reply_prompt():
         from_examples=True,
         token_limit=100,
     )
-    
+
+
+def test_template_loader_with_prompt():
+    template_data = {
+        "timestamp": "2024 06 24",
+        "username": "Jeff",
+        "character": {
+            "title": "The title",
+            "description": "The description",
+            "definition": "The definition\nWith multiple lines\nIn the definition",
+            "participant__name": "Alice",
+        },
+        "persona_definition": "The persona definition",
+        "cai_messages": [
+            CAIMessage(author="Alice", text="The first message"),
+            CAIMessage(author="Jeff", text="The second message"),
+            CAIMessage(author="Alice", text="The third message", is_pinned=True),
+            CAIMessage(author="Jeff", text="The fourth message"),
+        ],
+        "reply_prompt": "Alice:",
+    }
+    cai_functions = {}
+    for name, obj in inspect.getmembers(cai_helpers):
+        if inspect.isfunction(obj):
+            cai_functions[name] = obj
+    template_data.update(cai_functions)
+
+    prompt_with_local_fs_template_loader = Prompt(
+        template_data=template_data,
+        token_limit=100,
+        template_loader=LocalFSTemplateLoader("prompt_poet/examples/cai.yml.j2"),
+    )
+    assert len(prompt_with_local_fs_template_loader.messages) == 12
+
+    prompt_with_local_package_template_loader = Prompt(
+        template_data=template_data,
+        token_limit=100,
+        template_loader=LocalPackageTemplateLoader("prompt_poet", "examples/cai.yml.j2"),
+    )
+    assert len(prompt_with_local_package_template_loader.messages) == 12
+
+    prompt_with_template_path = Prompt(
+        template_data=template_data,
+        token_limit=100,
+        template_path="prompt_poet/examples/cai.yml.j2"
+    )
+    assert len(prompt_with_template_path.messages) == 12
+
+    prompt_with_template_package = Prompt(
+        template_data=template_data,
+        token_limit=100,
+        package_name="prompt_poet",
+        template_path="examples/cai.yml.j2"
+    )
+    assert len(prompt_with_template_package.messages) == 12
+
