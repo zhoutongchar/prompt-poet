@@ -51,7 +51,7 @@ class LocalFSTemplateLoader(TemplateLoader):
         return template
 
     def id(self):
-        return f"file://{self._template_dir}/{self._template_name}"
+        return f"{self._template_dir}/{self._template_name}"
 
 
 class LocalPackageTemplateLoader(TemplateLoader):
@@ -74,4 +74,4 @@ class LocalPackageTemplateLoader(TemplateLoader):
         return template
 
     def id(self):
-        return f"file://{self._package_name}:{self._template_dir}/{self._template_name}"
+        return f"{self._package_name}:{self._template_dir}/{self._template_name}"
