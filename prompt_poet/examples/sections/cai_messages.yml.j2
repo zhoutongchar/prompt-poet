@@ -3,6 +3,6 @@
 - name: "message_{{ loop.index }}"
   truncation_priority: 5
   content: |
-    {{ settings.start_token }}{{ escape_special_characters(qual_author_msg) }}{{ settings.eom }}
+    {{ settings.start_token }}hhhhh{{ escape_special_characters(qual_author_msg) }}{{ settings.eom }}
     {%- set settings.start_token = settings.bom -%}
 {% endfor %}
