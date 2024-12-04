@@ -5,7 +5,7 @@ import logging
 import jinja2 as j2
 from cachetools import TTLCache
 
-from prompt_poet.template_loaders import TemplateLoader
+from template_loaders import TemplateLoader
 
 CACHE_MAX_SIZE = 100
 CACHE_TTL_SECS = 30
@@ -47,14 +47,11 @@ class TemplateRegistry:
     ) -> j2.Template:
         """Get template from cache or load from disk.
 
-        Args:
-            template_loader: A TemplateLoader instance that handles loading the template
-                from its source.
-            use_cache: Whether to use cached template if available. If False or the
-                template is not in cache, it will be loaded from disk.
-
-        Returns:
-            j2.Template: The loaded Jinja2 template object.
+        :param template_loader: A TemplateLoader instance that handles loading the template
+            from its source.
+        :param use_cache: Whether to use cached template if available. If False or the
+            template is not in cache, it will be loaded from disk.
+        :return: The loaded template
         """
         cache_key = template_loader.id()
         load_from_disk = not use_cache or cache_key not in self._cache

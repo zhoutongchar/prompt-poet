@@ -3,13 +3,14 @@ import os
 import pytest
 
 from examples.cai_helpers import CAIMessage
+
 import jinja2 as j2
 from pp_exceptions import TruncationError
 from prompt import Prompt
 from tiktoken import get_encoding
 
-from prompt_poet import LocalFSTemplateLoader, LocalPackageTemplateLoader
-from prompt_poet.examples import cai_helpers
+from template_loaders import LocalFSTemplateLoader, LocalPackageTemplateLoader
+from examples import cai_helpers
 
 CWD = os.path.dirname(__file__)
 TIKTOKEN_ENCODING_NAME = "o200k_base"

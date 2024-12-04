@@ -5,7 +5,7 @@ import os
 
 import jinja2 as j2
 
-from prompt_poet.template_loaders import LocalPackageTemplateLoader, LocalFSTemplateLoader, TemplateLoader
+from template_loaders import LocalPackageTemplateLoader, LocalFSTemplateLoader, TemplateLoader
 from template_registry import TemplateRegistry
 
 

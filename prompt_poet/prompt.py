@@ -10,7 +10,7 @@ from functools import reduce
 import yaml
 from examples import cai_helpers
 from pp_exceptions import TruncationError
-from prompt_poet.template_loaders import TemplateLoader
+from template_loaders import TemplateLoader
 from template import Template
 from tokenizer import get_encode_func
 from typing import Callable

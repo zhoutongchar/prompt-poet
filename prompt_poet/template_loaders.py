@@ -3,19 +3,22 @@
 import os
 import jinja2 as j2
 
+from abc import ABC, abstractmethod
 
-class TemplateLoader:
+
+class TemplateLoader(ABC):
     """Base class for template loaders.
 
     This abstract class defines the interface for loading templates from various sources.
     Concrete implementations should handle specific template loading scenarios like
     local filesystem, remote filesystem, etc.
     """
-
+    @abstractmethod
     def load(self) -> j2.Template:
         """Load and return a Jinja2 template from the source."""
         pass
 
+    @abstractmethod
     def id(self) -> str:
         """Generate a unique identifier for this template loader configuration."""
         pass
@@ -48,7 +51,7 @@ class LocalFSTemplateLoader(TemplateLoader):
         return template
 
     def id(self):
-        return f"{self._template_dir}/{self._template_name}"
+        return f"file://{self._template_dir}/{self._template_name}"
 
 
 class LocalPackageTemplateLoader(TemplateLoader):
@@ -71,4 +74,4 @@ class LocalPackageTemplateLoader(TemplateLoader):
         return template
 
     def id(self):
-        return f"{self._package_name}:{self._template_dir}/{self._template_name}"
+        return f"file://{self._package_name}:{self._template_dir}/{self._template_name}"
