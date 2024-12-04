@@ -2,6 +2,7 @@
 
 import logging
 import os
+import warnings
 
 import jinja2 as j2
 
@@ -39,20 +40,20 @@ class Template:
                 f"Cannot provide both {raw_template=} and {template_path=}."
             )
         if template_path:
-            if logger:
-                logger.warning(
-                    "`template_path` is deprecated and will be removed in a future release. Use `template_loader` instead.")
-            else:
-                print(
-                    "Warning: `template_path` is deprecated and will be removed in a future release. Use `template_loader` instead.")
+            warnings.warn(
+                "`template_path` is deprecated and will be removed in a future release. "
+                "Use `template_loader` instead.",
+                DeprecationWarning,
+                stacklevel=2
+            )
 
         if package_name:
-            if logger:
-                logger.warning(
-                    "`package_name` is deprecated and will be removed in a future release. Use `template_loader` instead.")
-            else:
-                print(
-                    "Warning: `package_name` is deprecated and will be removed in a future release. Use `template_loader` instead.")
+            warnings.warn(
+                "`package_name` is deprecated and will be removed in a future release. "
+                "Use `template_loader` instead.",
+                DeprecationWarning,
+                stacklevel=2
+            )
 
         if template_path:
             (
@@ -65,8 +66,8 @@ class Template:
             self._template_loader = template_loader
         else:
             # To be backward compatible.
-            if package_name:
-                self._template_loader = LocalPackageTemplateLoader(package_name, template_path)
+            if self._package_name:
+                self._template_loader = LocalPackageTemplateLoader(self._package_name, template_path)
             else:
                 self._template_loader = LocalFSTemplateLoader(template_path)
         self._raw_template = raw_template
