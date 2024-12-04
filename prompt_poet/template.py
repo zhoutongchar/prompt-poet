@@ -130,6 +130,10 @@ class Template:
         """The name of the package housing the template file."""
         return self._package_name
 
+    @property
+    def template_id(self) -> str:
+        return self._template_loader.id()
+
     def _load_template(self):
         """Load a jinja2 template."""
         if self._raw_template:
