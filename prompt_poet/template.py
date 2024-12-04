@@ -132,6 +132,7 @@ class Template:
 
     @property
     def template_id(self) -> str:
+        """The id of the template associated with the template loader."""
         return self._template_loader.id()
 
     def _load_template(self):
