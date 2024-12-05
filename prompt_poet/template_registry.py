@@ -51,8 +51,6 @@ class TemplateRegistry:
             self._lock = threading.Lock()
 
     def _should_update(self):
-        # if self._last_update is None:
-        #     return True
         return self._last_update + self._ttl < time.time()
 
     def _load_internal(self, template_loader: TemplateLoader):

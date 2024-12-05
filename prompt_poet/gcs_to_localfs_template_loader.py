@@ -32,7 +32,6 @@ class GCSToLocalFSTemplateLoader(TemplateLoader):
     def _should_download(generation_data, blob: storage.Blob) -> bool:
         """Check if the file needs to be downloaded."""
         local_generation = generation_data.get(blob.name)
-        print(f"should i download {blob.name}?, local: {local_generation} - {str(blob.generation)}. so {local_generation != str(blob.generation)}")
         return local_generation != str(blob.generation)
 
     def _download(self):
