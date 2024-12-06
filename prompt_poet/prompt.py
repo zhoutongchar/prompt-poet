@@ -259,6 +259,11 @@ class Prompt:
         return self._template.template_id
 
     @property
+    def template_version(self) -> str:
+        """The version of the template associated with the template loader."""
+        return self._template.template_version
+
+    @property
     def template_package_name(self) -> str:
         """The metadata associated with the template."""
         return self._template.template_package_name

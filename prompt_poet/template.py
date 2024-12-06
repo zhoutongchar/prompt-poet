@@ -135,6 +135,11 @@ class Template:
         """The id of the template associated with the template loader."""
         return self._template_loader.id()
 
+    @property
+    def template_version(self) -> str:
+        """The version of the template associated with the template loader."""
+        return self._template_loader.version()
+
     def _load_template(self):
         """Load a jinja2 template."""
         if self._raw_template:
