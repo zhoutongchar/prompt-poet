@@ -24,7 +24,7 @@ class TemplateLoader(ABC):
         pass
 
 
-def _parse_template_path(template_path: str) -> tuple[str, str]:
+def parse_template_path(template_path: str) -> tuple[str, str]:
     """Parse the template path to determine the template source."""
     template_dir, template_name = os.path.split(template_path)
     if not template_dir:
@@ -36,7 +36,7 @@ class LocalFSTemplateLoader(TemplateLoader):
     """Template loader for loading templates from the local filesystem."""
 
     def __init__(self, template_path: str):
-        self._template_dir, self._template_name = _parse_template_path(template_path)
+        self._template_dir, self._template_name = parse_template_path(template_path)
 
     def load(self) -> j2.Template:
         try:
@@ -57,7 +57,7 @@ class LocalFSTemplateLoader(TemplateLoader):
 class LocalPackageTemplateLoader(TemplateLoader):
     """Template loader for loading templates from Python packages."""
     def __init__(self, package_name: str, template_path: str):
-        self._template_dir, self._template_name = _parse_template_path(template_path)
+        self._template_dir, self._template_name = parse_template_path(template_path)
         self._package_name = package_name
 
     def load(self) -> j2.Template:
