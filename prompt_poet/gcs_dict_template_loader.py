@@ -1,13 +1,11 @@
-import json
 import logging
 
-from jinja2 import BaseLoader, TemplateNotFound, DictLoader
+from jinja2 import BaseLoader
 from google.cloud import storage
 import os
 import jinja2 as j2
 
-from prompt_poet import TemplateLoader
-
+from template_loaders import parse_template_path, TemplateLoader
 
 logger = logging.getLogger(__name__)
 
