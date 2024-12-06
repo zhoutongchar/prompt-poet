@@ -1,14 +1,16 @@
 """A Prompt Poet (PP) template registry."""
 
 import logging
+import threading
+import time
 
 import jinja2 as j2
-from cachetools import TTLCache
+from cachetools import TTLCache, LRUCache
 
 from template_loaders import TemplateLoader
 
 CACHE_MAX_SIZE = 100
-CACHE_TTL_SECS = 30
+CACHE_TTL_SECS = 5
 
 
 class TemplateRegistry:
@@ -31,14 +33,43 @@ class TemplateRegistry:
             reset: bool = False,
             cache_max_size: int = CACHE_MAX_SIZE,
             cache_ttl_secs: int = CACHE_TTL_SECS,
+            background_update: bool = True,
     ):
         """Initialize template engine."""
         self._provided_logger = logger
 
         if not self._initialized or reset:
-            self._cache = TTLCache(maxsize=cache_max_size, ttl=cache_ttl_secs)
+            if background_update:
+                self._cache = LRUCache(maxsize=cache_max_size)
+            else:
+                self._cache = TTLCache(maxsize=cache_max_size, ttl=cache_ttl_secs)
+            self._ttl = cache_ttl_secs
             self._default_template = None
             self._initialized = True
+            self._last_update = None
+            self._update_in_progress = False
+            self._lock = threading.Lock()
+
+    def _should_update(self):
+        # if self._last_update is None:
+        #     return True
+        return self._last_update + self._ttl < time.time()
+
+    def _load_internal(self, template_loader: TemplateLoader):
+        """Load the template from GCS and update cache."""
+        with self._lock:
+            try:
+                self._update_in_progress = True
+                if not self._should_update():
+                    return
+                # Update the cached template and timestamp
+                cache_key = template_loader.id()
+                self._cache[cache_key] = template_loader.load()
+                self._last_update = time.time()
+            except Exception as ex:
+                print(f"Error loading template: {ex}")
+            finally:
+                self._update_in_progress = False
 
     def get_template(
             self,
@@ -53,11 +84,16 @@ class TemplateRegistry:
             template is not in cache, it will be loaded from disk.
         :return: The loaded template
         """
-        cache_key = template_loader.id()
-        load_from_disk = not use_cache or cache_key not in self._cache
+        if not use_cache:
+            return template_loader.load()
 
-        if load_from_disk:
+        cache_key = template_loader.id()
+        if cache_key not in self._cache:
             self._cache[cache_key] = template_loader.load()
+            self._last_update = time.time()
+
+        if self._should_update() and not self._update_in_progress:
+            threading.Thread(target=self._load_internal, args=(template_loader,), daemon=True).start()
 
         return self._cache[cache_key]
 
