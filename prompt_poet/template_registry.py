@@ -38,17 +38,21 @@ class TemplateRegistry:
         self._provided_logger = logger
 
         if not self._initialized or reset:
+            # In the case of reset, try to remove the background refresh thread.
+            self._stop_background_thread_if_running()
             self._template_cache = LRUCache(maxsize=cache_max_size)
             self._template_refresh_interval_secs = template_refresh_interval_secs
             self._default_template = None
-            self._initialized = True
             self._template_loader_cache = {}
-            # todo: clean up the thread.
-            self._thread = threading.Thread(target=self._load_internal, daemon=True).start()
+            self._stop_event = threading.Event()
+            self._thread = threading.Thread(target=self._load_internal, daemon=True)
+            self._thread.start()
+            # Initiation done.
+            self._initialized = True
 
     def _load_internal(self):
         """Load the template from GCS and update cache."""
-        while True:
+        while not self._stop_event.is_set():
             for cache_key, template_loader in self._template_loader_cache.items():
                 try:
                     self._template_cache[cache_key] = template_loader.load()
@@ -85,3 +89,15 @@ class TemplateRegistry:
             return self._provided_logger
 
         return logging.getLogger(__name__)
+
+    def shutdown(self):
+        """Public method to gracefully shut down the background thread."""
+        self._stop_background_thread_if_running()
+
+    def _stop_background_thread_if_running(self):
+        """Stop the background thread if it's running."""
+        # Handle partial initiation or reset.
+        if hasattr(self, '_stop_event') and self._stop_event and not self._stop_event.is_set():
+            self._stop_event.set()
+            if hasattr(self, '_thread') and self._thread:
+                self._thread.join()
