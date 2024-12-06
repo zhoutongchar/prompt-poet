@@ -10,7 +10,6 @@ from prompt import Prompt
 from tiktoken import get_encoding
 
 from template_loaders import LocalFSTemplateLoader, LocalPackageTemplateLoader
-from gcs_dict_template_loader import GCSDictTemplateLoader
 from examples import cai_helpers
 
 CWD = os.path.dirname(__file__)
