@@ -10,7 +10,7 @@ from cachetools import TTLCache, LRUCache
 from template_loaders import TemplateLoader
 
 CACHE_MAX_SIZE = 100
-TEMPLATE_REFRESH_INTERVAL_SECS = 10
+TEMPLATE_REFRESH_INTERVAL_SECS = 30
 
 
 class TemplateRegistry:
