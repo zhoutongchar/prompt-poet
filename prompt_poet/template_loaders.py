@@ -2,6 +2,8 @@
 
 import os
 import logging
+import time
+
 import jinja2 as j2
 
 from abc import ABC, abstractmethod
@@ -30,6 +32,10 @@ class TemplateLoader(ABC):
     def id(self) -> str:
         """Generate a unique identifier for this template loader configuration."""
         pass
+
+    def version(self) -> str | None:
+        """Optionally return the version of the template or configuration. Defaults to None."""
+        return None
 
 
 def _parse_template_path(template_path: str) -> tuple[str, str]:
@@ -107,6 +113,7 @@ class GCSDictTemplateLoader(TemplateLoader):
         self._template_dir, self._template_name = _parse_template_path(template_path)
         self._mapping = {}
         self._generation_data = {}
+        self._updated = time.time()
 
     def _is_stale(self, blob: storage.Blob) -> bool:
         """Check if the file needs to be downloaded."""
@@ -129,6 +136,7 @@ class GCSDictTemplateLoader(TemplateLoader):
                 source = blob.download_as_text()
                 self._mapping[relative_path] = source
                 self._generation_data[blob.name] = blob.generation
+                self._updated = blob.updated.isoformat() if blob.updated else None
 
     def load(self) -> j2.Template:
         try:
@@ -146,6 +154,9 @@ class GCSDictTemplateLoader(TemplateLoader):
 
     def id(self) -> str:
         return f"{GCS_TEMPLATE_LOADER_PREFIX}{self._bucket_name}/{self._template_dir}/{self._template_name}"
+
+    def version(self) -> str | None:
+        return str(self._updated)
 
 
 def _is_yaml_jinja(filename):
