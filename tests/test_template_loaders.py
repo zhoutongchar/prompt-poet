@@ -1,7 +1,7 @@
 from unittest.mock import Mock, patch
 
 from google.cloud import storage
-from gcs_dict_template_loader import GCSDictTemplateLoader
+from template_loaders import GCSDictTemplateLoader
 import jinja2 as j2
 
 
