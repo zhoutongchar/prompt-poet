@@ -5,7 +5,7 @@ import threading
 import time
 
 import jinja2 as j2
-from cachetools import TTLCache, LRUCache
+from cachetools import LRUCache
 
 from template_loaders import TemplateLoader
 
