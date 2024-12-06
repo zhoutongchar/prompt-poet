@@ -34,7 +34,7 @@ class TemplateLoader(ABC):
         pass
 
     def version(self) -> str | None:
-        """Optionally return the version of the template or configuration. Defaults to None."""
+        """Optionally return the version of the templates. Defaults to None."""
         return None
 
 
