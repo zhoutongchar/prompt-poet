@@ -22,6 +22,7 @@ setup(
         "PyYaml>=6.0.0",
         "cachetools==5.3.3",
         "tiktoken==0.7.0",
+        "google-cloud-storage==2.19.0",
     ],
     author="James Groeneveld",
     author_email="james@character.ai",
